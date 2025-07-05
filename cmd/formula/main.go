@@ -24,11 +24,10 @@ func main() {
 	}
 
 	varDict := formula.VariableDict{
-		"pi":   math.Pi,
-		"e":    math.E,
-		"nan":  math.NaN(),
-		"-inf": math.Inf(-1),
-		"+inf": math.Inf(1),
+		"pi":  math.Pi,
+		"e":   math.E,
+		"nan": math.NaN(),
+		"inf": math.Inf(1),
 	}
 
 	lexer := formula.NewLexer()

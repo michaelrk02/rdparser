@@ -11,8 +11,6 @@ const (
 	Minus    rdparser.Terminal = "-"
 	LParen   rdparser.Terminal = "("
 	RParen   rdparser.Terminal = ")"
-	LSquare  rdparser.Terminal = "["
-	RSquare  rdparser.Terminal = "]"
 	Comma    rdparser.Terminal = ","
 	Question rdparser.Terminal = "?"
 	Colon    rdparser.Terminal = ":"
@@ -37,7 +35,7 @@ const (
 
 func Dict() []rdparser.Terminal {
 	return []rdparser.Terminal{
-		Add, Sub, Mul, Div, Mod, Minus, LParen, RParen, LSquare, RSquare, Comma, Question, Colon,
+		Add, Sub, Mul, Div, Mod, Minus, LParen, RParen, Comma, Question, Colon,
 		Equ, NotEquA, NotEquB, NotEquC, LTEqu, GTEqu, LT, GT,
 		OrNotation, OrText, AndNotation, AndText, NotNotationA, NotNotationB, NotText,
 	}
