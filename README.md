@@ -15,11 +15,9 @@ Package: `formula`
 ```
 $ go run main.go
   -epsilon float
-        use this epsilon value
+        use this epsilon (error-tolerance) value
   -expr string
         expression
-  -test string
-        load test case from file
 ```
 
 ### Example

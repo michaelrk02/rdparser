@@ -10,34 +10,35 @@ import (
 
 type Function func(ctx context.Context, args []float64) float64
 
-type Library struct {
-	Data map[string]Function
-}
-
-func NewLibrary() *Library {
-	return &Library{
-		Data: make(map[string]Function),
-	}
+type Library interface {
+	Resolve(funcName string) (Function, bool)
 }
 
 type StdLibrary struct {
-	*Library
+	ref map[string]Function
 }
 
 func NewStdLibrary() *StdLibrary {
 	lib := &StdLibrary{
-		Library: NewLibrary(),
+		ref: make(map[string]Function),
 	}
 
-	lib.Data["pow"] = lib.Pow
-	lib.Data["round"] = lib.Round
-	lib.Data["min"] = lib.Min
-	lib.Data["max"] = lib.Max
-	lib.Data["sum"] = lib.Sum
-	lib.Data["avg"] = lib.Avg
-	lib.Data["average"] = lib.Avg
+	lib.ref["pow"] = lib.Pow
+	lib.ref["round"] = lib.Round
+	lib.ref["min"] = lib.Min
+	lib.ref["max"] = lib.Max
+	lib.ref["sum"] = lib.Sum
+	lib.ref["avg"] = lib.Avg
+	lib.ref["average"] = lib.Avg
 
 	return lib
+}
+
+func (lib *StdLibrary) Resolve(funcName string) (Function, bool) {
+	if fn, ok := lib.ref[funcName]; ok {
+		return fn, true
+	}
+	return nil, false
 }
 
 func (lib *StdLibrary) Pow(ctx context.Context, args []float64) float64 {

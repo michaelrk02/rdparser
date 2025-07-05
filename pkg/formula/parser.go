@@ -3,29 +3,32 @@ package formula
 import (
 	"context"
 	"fmt"
-	"math"
 	"regexp"
 	"strconv"
 
 	"github.com/michaelrk02/rdparser"
+	"github.com/michaelrk02/rdparser/pkg/formula/logic"
+	"github.com/michaelrk02/rdparser/pkg/formula/pattern"
 	"github.com/michaelrk02/rdparser/pkg/formula/symbol"
 	"github.com/michaelrk02/rdparser/pkg/formula/token"
 )
 
+type VariableDict map[string]float64
+
 type Parser struct {
-	lib     *Library
+	lib     Library
 	epsilon float64
 
-	Var      map[string]float64
+	varDict  VariableDict
 	varRegex *regexp.Regexp
 }
 
-func NewParser(lib *Library, epsilon float64) *Parser {
+func NewParser(lib Library, epsilon float64, varDict VariableDict) rdparser.Parser {
 	return &Parser{
 		lib:      lib,
 		epsilon:  epsilon,
-		Var:      make(map[string]float64),
-		varRegex: regexp.MustCompile(`^\[([a-zA-Z0-9-:]+)\]$`),
+		varDict:  varDict,
+		varRegex: regexp.MustCompile(fmt.Sprintf(`^%s$`, pattern.Variable)),
 	}
 }
 
@@ -117,7 +120,7 @@ func (p *Parser) FuncCall(ctx context.Context, t *rdparser.Tree) float64 {
 
 	funcArgs := p.FuncArg(ctx, t.At(2))
 
-	if callback, ok := p.lib.Data[funcName]; ok {
+	if callback, ok := p.lib.Resolve(funcName); ok {
 		return callback(ctx, funcArgs)
 	}
 
@@ -211,17 +214,17 @@ func (p *Parser) LogicExpr(ctx context.Context, t *rdparser.Tree) bool {
 
 	switch logicOp {
 	case LogicOpEqu:
-		return p.IsEqu(exprA, exprB)
+		return logic.Equ(exprA, exprB, p.epsilon)
 	case LogicOpNotEqu:
-		return p.IsNotEqu(exprA, exprB)
+		return logic.NotEqu(exprA, exprB, p.epsilon)
 	case LogicOpLTEqu:
-		return p.IsLTEqu(exprA, exprB)
+		return logic.LTEqu(exprA, exprB, p.epsilon)
 	case LogicOpGTEqu:
-		return p.IsGTEqu(exprA, exprB)
+		return logic.GTEqu(exprA, exprB, p.epsilon)
 	case LogicOpLT:
-		return p.IsLT(exprA, exprB)
+		return logic.LT(exprA, exprB)
 	case LogicOpGT:
-		return p.IsGT(exprA, exprB)
+		return logic.GT(exprA, exprB)
 	}
 
 	panic(rdparser.NewParseError(ctx, "invalid logical op code"))
@@ -260,7 +263,7 @@ func (p *Parser) Variable(ctx context.Context, t *rdparser.Tree) float64 {
 	}
 	varName := varExtract[1]
 
-	if rslt, ok := p.Var[varName]; ok {
+	if rslt, ok := p.varDict[varName]; ok {
 		return rslt
 	}
 
@@ -277,28 +280,4 @@ func (p *Parser) Number(ctx context.Context, t *rdparser.Tree) float64 {
 	}
 
 	return rslt
-}
-
-func (p *Parser) IsEqu(x, y float64) bool {
-	return math.Abs(x-y) <= p.epsilon
-}
-
-func (p *Parser) IsNotEqu(x, y float64) bool {
-	return math.Abs(x-y) > p.epsilon
-}
-
-func (p *Parser) IsLTEqu(x, y float64) bool {
-	return x < y || p.IsEqu(x, y)
-}
-
-func (p *Parser) IsGTEqu(x, y float64) bool {
-	return x > y || p.IsEqu(x, y)
-}
-
-func (p *Parser) IsLT(x, y float64) bool {
-	return x < y
-}
-
-func (p *Parser) IsGT(x, y float64) bool {
-	return x > y
 }

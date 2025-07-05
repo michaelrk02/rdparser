@@ -2,9 +2,11 @@ package formula
 
 import (
 	"context"
+	"fmt"
 	"regexp"
 
 	"github.com/michaelrk02/rdparser"
+	"github.com/michaelrk02/rdparser/pkg/formula/pattern"
 	"github.com/michaelrk02/rdparser/pkg/formula/symbol"
 	"github.com/michaelrk02/rdparser/pkg/formula/token"
 )
@@ -49,9 +51,9 @@ type Grammar struct {
 
 func NewGrammar() *Grammar {
 	return &Grammar{
-		FunctionPattern: regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9]*$`),
-		VariablePattern: regexp.MustCompile(`^\[([a-zA-Z0-9-:]+)\]$`),
-		NumberPattern:   regexp.MustCompile(`^(\d*\.\d+|\d+)$`),
+		FunctionPattern: regexp.MustCompile(fmt.Sprintf(`^%s$`, pattern.Function)),
+		VariablePattern: regexp.MustCompile(fmt.Sprintf(`^%s$`, pattern.Variable)),
+		NumberPattern:   regexp.MustCompile(fmt.Sprintf(`^%s$`, pattern.Number)),
 	}
 }
 
@@ -84,7 +86,6 @@ func (g *Grammar) Exprx(ctx context.Context, b *rdparser.Builder) (ok bool) {
 		return g.Expr(ctx, b)
 	}
 
-	// b.Skip()
 	return true
 }
 
@@ -109,7 +110,6 @@ func (g *Grammar) Termx(ctx context.Context, b *rdparser.Builder) (ok bool) {
 		return g.Term(ctx, b)
 	}
 
-	// b.Skip()
 	return true
 }
 
@@ -180,7 +180,6 @@ func (g *Grammar) FuncArgx(ctx context.Context, b *rdparser.Builder) (ok bool) {
 		return g.FuncArg(ctx, b)
 	}
 
-	// b.Skip()
 	return true
 }
 
@@ -203,7 +202,6 @@ func (g *Grammar) BoolExprx(ctx context.Context, b *rdparser.Builder) (ok bool) 
 		return g.BoolExpr(ctx, b)
 	}
 
-	// b.Skip()
 	return true
 }
 
@@ -220,7 +218,6 @@ func (g *Grammar) BoolTermx(ctx context.Context, b *rdparser.Builder) (ok bool) 
 		return g.BoolTerm(ctx, b)
 	}
 
-	// b.Skip()
 	return true
 }
 
